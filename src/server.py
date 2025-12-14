@@ -22,6 +22,8 @@ def redact_sensitive_data(text: str) -> str:
         
     return redacted_text
 
+mcp = FastMCP("AutoDock")
+
 @mcp.tool()
 def diagnose_container(container_id: str) -> str:
     """
