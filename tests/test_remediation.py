@@ -85,6 +85,7 @@ def test_restart_but_not_running():
         assert "exited" in result
 
 
+
 def test_restart_timeout():
     """
     Verifies timeout message when container does not reach running state within max_wait period.
@@ -109,3 +110,26 @@ def test_restart_timeout():
         assert "30s" in result
         assert "starting" in result
 
+
+def test_reload_failure():
+    """
+    Verifies proper error handling when container.reload() fails during status verification.
+    """
+    with patch("remediation.docker.from_env") as mock_docker:
+        mock_client = MagicMock()
+        mock_container = MagicMock()
+        
+        mock_docker.return_value = mock_client
+        mock_client.containers.get.return_value = mock_container
+        
+        mock_container.name = "test-container"
+        mock_container.reload.side_effect = docker.errors.APIError("Connection lost")
+        
+        result = restart_container_safely("test-id")
+        
+        mock_container.restart.assert_called_once_with(timeout=10)
+        assert mock_container.reload.call_count >= 1
+        
+        assert "❌" in result
+        assert "Unable to verify container status" in result
+        assert "Connection lost" in result

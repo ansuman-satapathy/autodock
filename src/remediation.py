@@ -32,8 +32,8 @@ def restart_container_safely(container_id: str) -> str:
             
             try:
                 container.reload()
-            except Exception:
-                break
+            except Exception as e:
+                return f"❌ Fix failed: Unable to verify container status after restart: {str(e)}"
             
             if container.status == "running":
                 return f"✅ Successfully restarted '{container.name}'."
