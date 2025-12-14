@@ -15,6 +15,7 @@ def restart_container_safely(container_id: str) -> str:
     it reaches "exited" or "dead" state, or a timeout warning if it doesn't stabilize
     within the timeout period.
     """
+    client = None
     try:
         client = docker.from_env()
         container = client.containers.get(container_id)
@@ -48,3 +49,9 @@ def restart_container_safely(container_id: str) -> str:
         return f"❌ Fix failed: Container '{container_id}' not found."
     except Exception as e:
         return f"❌ Fix failed: {str(e)}"
+    finally:
+        if client is not None:
+            try:
+                client.close()
+            except Exception:
+                pass
