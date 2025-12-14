@@ -21,7 +21,7 @@ def test_successful_restart():
         result = restart_container_safely("test-id")
         
         mock_container.restart.assert_called_once_with(timeout=10)
-        mock_container.reload.assert_called_once()
+        assert mock_container.reload.call_count >= 1
         
         assert "✅" in result
         assert "test-container" in result
@@ -79,7 +79,33 @@ def test_restart_but_not_running():
         result = restart_container_safely("test-id")
         
         mock_container.restart.assert_called_once_with(timeout=10)
-        mock_container.reload.assert_called_once()
+        assert mock_container.reload.call_count >= 1
         
         assert "⚠️" in result
         assert "exited" in result
+
+
+def test_restart_timeout():
+    """
+    Verifies timeout message when container does not reach running state within max_wait period.
+    """
+    with patch("remediation.docker.from_env") as mock_docker, \
+         patch("remediation.time.sleep"):
+        mock_client = MagicMock()
+        mock_container = MagicMock()
+        
+        mock_docker.return_value = mock_client
+        mock_client.containers.get.return_value = mock_container
+        
+        mock_container.name = "test-container"
+        mock_container.status = "starting"
+        
+        result = restart_container_safely("test-id")
+        
+        mock_container.restart.assert_called_once_with(timeout=10)
+        assert mock_container.reload.call_count > 1
+        
+        assert "⚠️" in result
+        assert "30s" in result
+        assert "starting" in result
+
