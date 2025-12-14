@@ -24,4 +24,4 @@ def scan_logs_for_issues(logs: str) -> List[str]:
                 suspicious_lines.append(clean_line)
                 seen.add(clean_line)
 
-    return suspicious_lines[-10:] if suspicious_lines else ["No obvious errors found in logs."]
+    return suspicious_lines[-10:] if suspicious_lines else ["✅ No obvious errors found in logs."]

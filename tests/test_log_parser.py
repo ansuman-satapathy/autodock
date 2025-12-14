@@ -1,4 +1,4 @@
-from src.log_parser import scan_logs_for_issues
+from log_parser import scan_logs_for_issues
 
 def test_no_logs_returns_message():
     result = scan_logs_for_issues("")
