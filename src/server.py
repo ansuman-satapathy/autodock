@@ -1,8 +1,8 @@
 from mcp.server.fastmcp import FastMCP
 import docker
 import docker.errors
-from docker_utils import get_container_details
-from log_parser import scan_logs_for_issues
+from .docker_utils import get_container_details
+from .log_parser import scan_logs_for_issues
 
 mcp = FastMCP("AutoDock")
 
