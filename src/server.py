@@ -3,8 +3,24 @@ import docker
 import docker.errors
 from .docker_utils import get_container_details
 from .log_parser import scan_logs_for_issues
+import re
 
-mcp = FastMCP("AutoDock")
+def redact_sensitive_data(text: str) -> str:
+    """
+    Redacts sensitive information like API keys, tokens, emails, and passwords from the input text.
+    """
+    patterns = {
+        r'(?i)(api[_-]?key|token|secret|password|passwd|pwd|auth)[ \t]*[:=][ \t]*["\']?[a-zA-Z0-9%\-_]{8,}["\']?': r'\1: [REDACTED]',
+        r'Bearer\s+[a-zA-Z0-9\._\-]{20,}': 'Bearer [REDACTED]',
+        r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}': '[EMAIL REDACTED]',
+        r'(?i)(postgres|mysql|mongodb|redis)://[^\s]+': '[CONNECTION STRING REDACTED]'
+    }
+    
+    redacted_text = text
+    for pattern, replacement in patterns.items():
+        redacted_text = re.sub(pattern, replacement, redacted_text)
+        
+    return redacted_text
 
 @mcp.tool()
 def diagnose_container(container_id: str) -> str:
@@ -48,9 +64,9 @@ def analyze_logs(container_id: str, lines: int = 200) -> str:
         issues = scan_logs_for_issues(raw_logs)
         
         if len(issues) == 1 and issues[0].startswith("✅"):
-            return issues[0]
+            return redact_sensitive_data(issues[0])
             
-        return "⚠️ **Issues Found in Logs:**\n" + "\n".join([f"- {i}" for i in issues])
+        return "⚠️ **Issues Found in Logs:**\n" + "\n".join([f"- {redact_sensitive_data(i)}" for i in issues])
         
     # CodeRabbit Fix: Explicit Error Handling
     except docker.errors.NotFound:
