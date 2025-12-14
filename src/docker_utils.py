@@ -2,7 +2,6 @@ import docker
 from docker.errors import NotFound, APIError
 from typing import Dict, Optional
 
-# Initialize client once
 try:
     client = docker.from_env()
 except Exception:
@@ -20,7 +19,6 @@ def get_container_details(container_id: str) -> Dict[str, str]:
         attrs = container.attrs
         state = attrs.get("State", {})
         
-        # internal healthcheck (if defined in Dockerfile)
         health_info = state.get("Health", {})
         health_status = health_info.get("Status", "not_configured")
 
