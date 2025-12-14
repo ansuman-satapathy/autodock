@@ -1,0 +1,25 @@
+[project]
+name = "autodock"
+version = "0.1.0"
+description = "Autonomous SRE Agent for Docker containers using MCP."
+requires-python = ">=3.10"
+dependencies = [
+    "mcp[cli]>=0.1.0",
+    "docker>=7.0.0",
+    "pydantic>=2.0.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+    "black"
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"

@@ -1,0 +1,11 @@
+# .gitignore
+__pycache__/
+*.pyc
+.env
+.venv/
+env/
+dist/
+build/
+.DS_Store
+.coverage
+.pytest_cache/
